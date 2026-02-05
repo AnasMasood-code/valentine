@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valentine</title>
+
+<style>
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
+
+body {
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffe6f0;
+}
+
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  width: 340px;
+  position: relative;
+  z-index: 2;
+}
+
+h2 { color: #ff4d6d; }
+
+img {
+  width: 170px;
+  margin: 20px 0;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  height: 60px;
+}
+
+button {
+  padding: 12px 26px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform .2s ease;
+}
+
+#yesBtn { background: #ff4d6d; color: white; }
+#noBtn { background: #ddd; }
+
+.result {
+  display: none;
+  font-size: 20px;
+  color: #ff4d6d;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* 🌹 Roses */
+.rose {
+  position: fixed;
+  top: -40px;
+  font-size: 26px;
+  animation: fall linear forwards;
+  pointer-events: none;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Will you be my Valentine? 💘</h2>
+
+  <img src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif">
+
+  <div class="buttons">
+    <button id="yesBtn">Yes 💖</button>
+    <button id="noBtn">No ❌</button>
+  </div>
+
+  <div class="result" id="result">YAY! 💘🌹</div>
+</div>
+
+<script>
+/* 🔊 WEB AUDIO (GUARANTEED) */
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+
+function beep(freq, duration, type="sine") {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.value = 0.2;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  setTimeout(() => osc.stop(), duration);
+}
+
+function wrongBeep() {
+  beep(180, 200, "square"); // ❌ wrong answer
+}
+
+function romanticTone() {
+  beep(523, 300);
+  setTimeout(() => beep(659, 300), 320);
+  setTimeout(() => beep(784, 400), 660);
+}
+
+/* LOGIC */
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const result = document.getElementById("result");
+
+let yesScale = 1;
+let noCount = 0;
+const MAX_NO = 5;
+
+function moveNo() {
+  noBtn.style.transform =
+    `translate(${Math.random()*50-25}px, ${Math.random()*16-8}px)`;
+}
+
+noBtn.addEventListener("click", () => {
+  audioCtx.resume(); // REQUIRED on mobile
+
+  if (noCount >= MAX_NO) return;
+  noCount++;
+
+  wrongBeep();
+
+  yesScale *= 1.05;
+  yesBtn.style.transform = `scale(${yesScale})`;
+
+  moveNo();
+  if (noCount >= MAX_NO) noBtn.style.display = "none";
+});
+
+yesBtn.addEventListener("click", () => {
+  audioCtx.resume(); // REQUIRED on mobile
+
+  romanticTone();
+
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+  result.style.display = "block";
+  roses();
+});
+
+function roses() {
+  const i = setInterval(() => {
+    const r = document.createElement("div");
+    r.className = "rose";
+    r.innerText = "🌹";
+    r.style.left = Math.random()*100 + "vw";
+    r.style.animationDuration = (3 + Math.random()*3) + "s";
+    document.body.appendChild(r);
+    setTimeout(() => r.remove(), 6000);
+  }, 180);
+  setTimeout(() => clearInterval(i), 6000);
+}
+</script>
+
+</body>
+</html>
